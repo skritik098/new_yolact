@@ -717,7 +717,7 @@ def process_pipeline(frame, keep_state=True):
 
     return blend_output
 
-ret, mtx, dist, rvecs, tvecs = calibrate_camera(calib_images_dir='/content/Vehicle_Lane_Detection/camera_cal')
+ret, mtx, dist, rvecs, tvecs = calibrate_camera(calib_images_dir='/content/new_yolact/camera_cal')
 
 
 def evalimage(net:Yolact, path:str, save_path:str=None):
