@@ -761,6 +761,60 @@ class CustomDataParallel(torch.nn.DataParallel):
         # Note that I don't actually want to convert everything to the output_device
         return sum(outputs, [])
 
+def evaLanevideo(net:Yolact, path:str, out_path:str=None):
+	# If the path is a digit, parse it into a webcam index
+	is_webcam = path.isdigit()
+
+	#If the input size is fixed, then this make things faster (Hence useing for video setting only)
+	cudnn.benchmark = True
+
+	if is_webcam:
+		vid = cv2.VideoCapture(int(path))
+	else:
+		vid = cv2.VideoCapture(path)
+
+	if not vid.isOpened():
+		print('Could not open the video "%s"' %path)
+		exit(-1)
+
+	target_fps   = round(vid.get(cv2.CAP_PROP_FPS))
+    frame_width  = round(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = round(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+
+	if out_path is not None:
+        out = cv2.VideoWriter(out_path, cv2.VideoWriter_fourcc(*"mp4v"), target_fps, (frame_width, frame_height))
+
+	while(vid.isOpened):
+		h, frame = vid.read()
+		frame = cv2.cvtColor(process_pipeline(frame, keep_state=False), code=cv2.COLOR_BGR2RGB)
+		if not h:
+			break
+		frame = torch.from_numpy(frame).cuda().float()
+	    batch = FastBaseTransform()(frame.unsqueeze(0))
+	    preds = net(batch)
+
+	    img_numpy = prep_display(preds, frame, None, None, undo_transform=False)
+	    
+	    if save_path is None:
+	        img_numpy = img_numpy[:, :, (2, 1, 0)]
+
+	    if save_path is None:
+	        plt.imshow(img_numpy)
+	        plt.title(path)
+	        plt.show()
+	    else:
+	        #cv2.imwrite(save_path, img_numpy)
+	        out.write(img_numpy)
+
+	vid.release()
+    if out_path is not None:
+        out.release()
+    cv2.destroyAllWindows()
+    #exit()
+
+
+
 def evalvideo(net:Yolact, path:str, out_path:str=None):
     # If the path is a digit, parse it as a webcam index
     is_webcam = path.isdigit()
@@ -1015,9 +1069,11 @@ def evaluate(net:Yolact, dataset, train_mode=False):
     elif args.video is not None:
         if ':' in args.video:
             inp, out = args.video.split(':')
-            evalvideo(net, inp, out)
+            #evalvideo(net, inp, out)
+            evaLanevideo(net,inp,out)
         else:
-            evalvideo(net, args.video)
+            #evalvideo(net, args.video)
+            evaLanevideo(net,inp,out)
         return
 
     frame_times = MovingAverage()
