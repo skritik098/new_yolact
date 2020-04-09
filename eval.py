@@ -778,8 +778,8 @@ def evaLanevideo(net:Yolact, path:str, out_path:str=None):
 		exit(-1)
 
 	target_fps   = round(vid.get(cv2.CAP_PROP_FPS))
-    frame_width  = round(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = round(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_width  = (vid.read()[1]).shape[0] #round(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = (vid.read()[1]).shape[1]#round(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 
 	if out_path is not None:
