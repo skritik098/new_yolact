@@ -247,6 +247,8 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
         return img_numpy
 
     if args.display_text or args.display_bboxes:
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(img_numpy, 'Number of Cars: {}'.format(num_dets_to_consider), (860, 130), font, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
         for j in reversed(range(num_dets_to_consider)):
             x1, y1, x2, y2 = boxes[j, :]
             color = get_color(j)
@@ -258,19 +260,20 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
             if args.display_text:
                 _class = cfg.dataset.class_names[classes[j]]
                 print(_class)
-                text_str = '%s: %.2f' % (_class, score) if args.display_scores else _class
+                if _class == str('car'):
+                    text_str = '%s: %.2f' % (_class, score) if args.display_scores else _class
 
-                font_face = cv2.FONT_HERSHEY_DUPLEX
-                font_scale = 0.6
-                font_thickness = 1
+                    font_face = cv2.FONT_HERSHEY_DUPLEX
+                    font_scale = 0.6
+                    font_thickness = 1
 
-                text_w, text_h = cv2.getTextSize(text_str, font_face, font_scale, font_thickness)[0]
+                    text_w, text_h = cv2.getTextSize(text_str, font_face, font_scale, font_thickness)[0]
 
-                text_pt = (x1, y1 - 3)
-                text_color = [255, 255, 255]
+                    text_pt = (x1, y1 - 3)
+                    text_color = [255, 255, 255]
 
-                cv2.rectangle(img_numpy, (x1, y1), (x1 + text_w, y1 - text_h - 4), color, -1)
-                cv2.putText(img_numpy, text_str, text_pt, font_face, font_scale, text_color, font_thickness, cv2.LINE_AA)
+                    cv2.rectangle(img_numpy, (x1, y1), (x1 + text_w, y1 - text_h - 4), color, -1)
+                    cv2.putText(img_numpy, text_str, text_pt, font_face, font_scale, text_color, font_thickness, cv2.LINE_AA)
             
     
     return img_numpy
@@ -797,15 +800,15 @@ def evaLanevideo(net, path:str, out_path:str=None):
 
         img_numpy = prep_display(preds, frame, None, None, undo_transform=False)
 
-        if save_path is None:
+        if out_path is None:
             img_numpy = img_numpy[:, :, (2, 1, 0)]
 
-        if save_path is None:
+        if out_path is None:
             plt.imshow(img_numpy)
             plt.title(path)
             plt.show()
         else:
-            #cv2.imwrite(save_path, img_numpy)
+            #cv2.imwrite(out_path, img_numpy)
             out.write(img_numpy)
 
     vid.release()
