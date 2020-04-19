@@ -247,8 +247,8 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
         return img_numpy
 
     if args.display_text or args.display_bboxes:
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(img_numpy, 'Number of Cars: {}'.format(num_dets_to_consider), (860, 130), font, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
+        #font = cv2.FONT_HERSHEY_SIMPLEX
+        #cv2.putText(img_numpy, 'Number of Cars: {}'.format(num_dets_to_consider), (860, 130), font, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
         for j in reversed(range(num_dets_to_consider)):
             x1, y1, x2, y2 = boxes[j, :]
             color = get_color(j)
@@ -259,20 +259,21 @@ def prep_display(dets_out, img, h, w, undo_transform=True, class_color=False, ma
 
             if args.display_text:
                 _class = cfg.dataset.class_names[classes[j]]
-                if _class is str(car):
-                    text_str = '%s: %.2f' % (_class, score) if args.display_scores else _class
+                #if _class is str(car):
+                print(_class)
+                text_str = '%s: %.2f' % (_class, score) if args.display_scores else _class
 
-                    font_face = cv2.FONT_HERSHEY_DUPLEX
-                    font_scale = 0.6
-                    font_thickness = 1
+                font_face = cv2.FONT_HERSHEY_DUPLEX
+                font_scale = 0.6
+                font_thickness = 1
 
-                    text_w, text_h = cv2.getTextSize(text_str, font_face, font_scale, font_thickness)[0]
+                text_w, text_h = cv2.getTextSize(text_str, font_face, font_scale, font_thickness)[0]
 
-                    text_pt = (x1, y1 - 3)
-                    text_color = [255, 255, 255]
+                text_pt = (x1, y1 - 3)
+                text_color = [255, 255, 255]
 
-                    cv2.rectangle(img_numpy, (x1, y1), (x1 + text_w, y1 - text_h - 4), color, -1)
-                    cv2.putText(img_numpy, text_str, text_pt, font_face, font_scale, text_color, font_thickness, cv2.LINE_AA)
+                cv2.rectangle(img_numpy, (x1, y1), (x1 + text_w, y1 - text_h - 4), color, -1)
+                cv2.putText(img_numpy, text_str, text_pt, font_face, font_scale, text_color, font_thickness, cv2.LINE_AA)
             
     
     return img_numpy
